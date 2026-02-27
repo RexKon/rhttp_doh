@@ -81,7 +81,15 @@ class _BrowserPageState extends State<BrowserPage> {
 
     final uri = Uri.parse(url);
     await client.get(uri.toString());
-    await webViewController.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
+
+    if (resolvedIp != null) {
+      final ipUri = uri.replace(host: resolvedIp!);
+      final ipUrl = ipUri.toString();
+      print('Loading IP URL: $ipUrl');
+      await webViewController.loadUrl(urlRequest: URLRequest(url: WebUri(ipUrl)));
+    } else {
+      await webViewController.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
+    }
   }
 
   @override
