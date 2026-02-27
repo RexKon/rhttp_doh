@@ -79,16 +79,22 @@ class _BrowserPageState extends State<BrowserPage> {
     if (url.isEmpty) return;
     if (!url.startsWith('http')) url = 'https://$url';
 
-    final uri = Uri.parse(url);
-    await client.get(uri.toString());
-
-    if (resolvedIp != null) {
-      final ipUri = uri.replace(host: resolvedIp!);
-      final ipUrl = ipUri.toString();
-      print('Loading IP URL: $ipUrl');
-      await webViewController.loadUrl(urlRequest: URLRequest(url: WebUri(ipUrl)));
-    } else {
-      await webViewController.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
+    try {
+      final response = await client.get(
+        url,
+        headers: HttpHeaders.rawMap({
+          'User-Agent': 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        }),
+      );
+      await webViewController.loadData(
+        data: response.body,
+        baseUrl: WebUri(url),
+        mimeType: 'text/html',
+      );
+    } catch (e) {
+      print('Error loading page: $e');
     }
   }
 
