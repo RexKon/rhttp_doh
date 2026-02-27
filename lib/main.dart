@@ -28,8 +28,6 @@ class _BrowserPageState extends State<BrowserPage> {
   late InAppWebViewController webViewController;
   late RhttpClient client;
   final urlController = TextEditingController();
-  String? resolvedIp;
-  String? resolvedDomain;
 
   @override
   void initState() {
@@ -52,12 +50,6 @@ class _BrowserPageState extends State<BrowserPage> {
               final data = jsonDecode(response.body);
               if (data['Answer'] != null && (data['Answer'] as List).isNotEmpty) {
                 final ip = data['Answer'][0]['data'] as String;
-                if (mounted) {
-                  setState(() {
-                    resolvedDomain = host;
-                    resolvedIp = ip;
-                  });
-                }
                 return [ip];
               }
             }
@@ -124,12 +116,6 @@ class _BrowserPageState extends State<BrowserPage> {
                   ElevatedButton(onPressed: navigate, child: Text('Go')),
                 ],
               ),
-              if (resolvedDomain != null)
-                Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: Colors.blue[50]),
-                  child: Text('DoH: $resolvedDomain => $resolvedIp'),
-                ),
             ],
           ),
           Expanded(
