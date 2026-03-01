@@ -49,8 +49,14 @@ class _BrowserPageState extends State<BrowserPage> {
             if (response.statusCode == 200) {
               final data = jsonDecode(response.body);
               if (data['Answer'] != null && (data['Answer'] as List).isNotEmpty) {
-                final ip = data['Answer'][0]['data'] as String;
-                return [ip];
+                for (final answer in (data['Answer'] as List)) {
+                  final type = answer['type'] as int?;
+                  final recordData = answer['data'] as String?;
+                  if (type == 1 && recordData != null) {
+                    return [recordData];
+                  }
+                }
+                return [host];
               }
             }
             return [host];
@@ -75,16 +81,21 @@ class _BrowserPageState extends State<BrowserPage> {
       final response = await client.get(
         url,
         headers: HttpHeaders.rawMap({
-          'User-Agent': 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+          'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
           'Accept-Language': 'en-US,en;q=0.9',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'DNT': '1',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1',
+          'Sec-Fetch-Dest': 'document',
+          'Sec-Fetch-Mode': 'navigate',
+          'Sec-Fetch-Site': 'none',
+          'Cache-Control': 'max-age=0',
         }),
       );
-      await webViewController.loadData(
-        data: response.body,
-        baseUrl: WebUri(url),
-        mimeType: 'text/html',
-      );
+      await webViewController.loadData(data: response.body, baseUrl: WebUri(url), mimeType: 'text/html');
     } catch (e) {
       print('Error loading page: $e');
     }
