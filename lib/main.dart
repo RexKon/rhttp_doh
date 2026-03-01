@@ -72,7 +72,7 @@ class _BrowserPageState extends State<BrowserPage> {
     super.dispose();
   }
 
-  void navigate() async {
+  void navigateWithDoH() async {
     var url = urlController.text.trim();
     if (url.isEmpty) return;
     if (!url.startsWith('http')) url = 'https://$url';
@@ -101,6 +101,18 @@ class _BrowserPageState extends State<BrowserPage> {
     }
   }
 
+  void navigateWithoutDoH() async {
+    var url = urlController.text.trim();
+    if (url.isEmpty) return;
+    if (!url.startsWith('http')) url = 'https://$url';
+
+    try {
+      await webViewController.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
+    } catch (e) {
+      print('Error loading page: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,10 +133,11 @@ class _BrowserPageState extends State<BrowserPage> {
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                         isDense: true,
                       ),
-                      onSubmitted: (_) => navigate(),
+                      onSubmitted: (_) => navigateWithDoH(),
                     ),
                   ),
-                  ElevatedButton(onPressed: navigate, child: Text('Go')),
+                  ElevatedButton(onPressed: navigateWithDoH, child: Text('DoH')),
+                  ElevatedButton(onPressed: navigateWithoutDoH, child: Text('Direct')),
                 ],
               ),
             ],
